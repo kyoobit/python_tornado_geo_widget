@@ -43,6 +43,11 @@ jobs:
       - name: Format application files
         run: make format
 
+      - name: Get databases
+        env:
+          MAXMIND_API_KEY: ${{ secrets.MAXMIND_API_KEY }}
+        run: bash get_maxmind_database.sh -u -e GeoLite2-ASN,GeoLite2-City -k "${MAXMIND_API_KEY}"
+
       - name: Test application functionality
         run: make test
 
