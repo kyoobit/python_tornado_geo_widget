@@ -1,0 +1,3 @@
+# Required for application functionality
+tornado
+geoip2
