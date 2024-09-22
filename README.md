@@ -25,17 +25,16 @@ View available application options:
 
     podman run --rm --name tornado-geo-widget-help tornado-geo-widget:${TAG:=v1} --help
     
-Download and unpack the MaxMind databases:
+Download and unpack the MaxMind databases in a directory named `db`:
 
+    mkdir db && cd db
     get_maxmind_database.sh -u -e GeoLite2-ASN,GeoLite2-City -k "${MAXMIND_API_KEY}"
 
-Run a container:
+Run a container instance:
 
-    podman run --rm --name tornado-geo-widget --detach \
-    --volume ./GeoLite2-ASN.mmdb:/var/db/GeoLite2-ASN.mmdb:ro \
-    --volume ./GeoLite2-City.mmdb:/var/db/GeoLite2-City.mmdb:ro \
-    --publish 8893:8893/tcp tornado-geo-widget:v1 --verbose --port 8893 \
-    --mmdb /var/db
+    podman run --rm --detach --tty --publish 8889:8888/tcp \
+    --name tornado-geo-widget --volume ./db:/var/db:ro \
+    tornado-geo-widget:v1 --mmdb /var/db --port 8893
 
 Python Actix Geo Widget Endpoints:
 
