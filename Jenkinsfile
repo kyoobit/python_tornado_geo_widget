@@ -102,7 +102,10 @@ pipeline {
                 ]) {
                     sh "docker rm -f docker.io/${env.dockerHubUser}/${IMAGE_NAME}:${IMAGE_TAG}"
                     sh "docker pull docker.io/${env.dockerHubUser}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    sh "docker run --rm --detach docker.io/${env.dockerHubUser}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker run --rm --detach \
+                        --volume ./GeoLite2-ASN.mmdb:/GeoLite2-ASN.mmdb:ro \
+                        --volume ./GeoLite2-City.mmdb:/GeoLite2-City.mmdb:ro \
+                        docker.io/${env.dockerHubUser}/${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }

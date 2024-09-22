@@ -26,10 +26,10 @@ ENTRYPOINT ["python3", "/cli.py"]
 ##   podman run --rm --name tornado-geo-widget-help tornado-geo-widget:v1 --help
 ##
 ## Download the latest databases (you'll need an API key):
-##   mkdir db && cd db && bash ./get_maxmind_database.sh \
-##   -u -e GeoLite2-ASN,GeoLite2-City -k "${MAXMIND_API_KEY}"
+##   bash ./get_maxmind_database.sh -u -e GeoLite2-ASN,GeoLite2-City -k "${MAXMIND_API_KEY}"
 ## 
 ## Run a container instance:
-##   podman run --rm --detach --tty --publish 8889:8888/tcp \
-##   --name tornado-geo-widget --volume ./db:/var/db:ro \
-##   tornado-geo-widget:v1 --mmdb /var/db --port 8893
+##   podman run --rm --detach --publish 8888:8888/tcp \
+##   --volume ./GeoLite2-ASN.mmdb:/GeoLite2-ASN.mmdb:ro \
+##   --volume ./GeoLite2-City.mmdb:/GeoLite2-City.mmdb:ro \
+##   --name tornado-geo-widget tornado-geo-widget:v1
