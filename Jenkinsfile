@@ -38,6 +38,15 @@ pipeline {
         stage('Test Code') {
             // Use the Makefile to run tests on the project
             steps {
+                withCredentials([
+                    string(
+                        credentialsId: 'MAXMIND_API_KEY',
+                        variable: 'MAXMIND_API_KEY'
+                    )
+                ]) {
+                    sh 'bash ./get_maxmind_database.sh -u -e GeoLite2-ASN,GeoLite2-City -k $MAXMIND_API_KEY'
+                    sh 'ls -l GeoLite*'
+                }
 	            sh 'make test'
             }
         }
