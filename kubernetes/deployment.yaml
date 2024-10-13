@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: tornado-geo-widget
+    version: latest
+  name: tornado-geo-widget
+  namespace: geo-widget
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tornado-geo-widget
+  template:
+    metadata:
+      labels:
+        app: tornado-geo-widget
+    spec:
+      volumes:
+        - name: geo-widget-db
+          persistentVolumeClaim:
+            claimName: geo-widget
+      containers:
+        - name: tornado-geo-widget
+          image: ghcr.io/kyoobit/tornado-geo-widget:latest
+          args:
+            - --verbose
+            - --mmdb
+            - /var/db
+          ports:
+            - containerPort: 8888
+              name: "geo-widget"
+          volumeMounts:
+            - mountPath: "/var/db"
+              name: geo-widget-db
