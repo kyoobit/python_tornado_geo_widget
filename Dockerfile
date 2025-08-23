@@ -32,4 +32,4 @@ ENTRYPOINT ["python3", "/cli.py"]
 ##   podman run --rm --detach --publish 8888:8888/tcp \
 ##   --volume ./GeoLite2-ASN.mmdb:/GeoLite2-ASN.mmdb:ro \
 ##   --volume ./GeoLite2-City.mmdb:/GeoLite2-City.mmdb:ro \
-##   --name tornado-geo-widget tornado-geo-widget:v1
+##   --name tornado-geo-widget tornado-geo-widget:v1 --verbose
