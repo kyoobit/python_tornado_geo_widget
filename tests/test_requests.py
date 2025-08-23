@@ -15,6 +15,7 @@ class TestApp(tornado.testing.AsyncHTTPTestCase):
             ("/foo", {"method": "GET"}, 204, None),
             ("/bar", {"method": "GET"}, 204, None),
             ("/ping", {"method": "GET"}, 200, {"ping": "pong"}),
+            ("/healthcheck", {"method": "GET"}, 200, {"is_healthy": True}),
             ("/any/path/ending/in/help", {"method": "GET"}, 200, None),
             (
                 "/address",

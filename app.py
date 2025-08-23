@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from json import dumps
 from pathlib import Path
 from re import search
@@ -118,14 +118,75 @@ def log_function(handler, *args, **kwargs):
 
 
 # -----------------------------------------------------------------------------
+class DefaultHandler(tornado.web.RequestHandler):
+
+    def initialize(self, **kwargs):
+        self.set_header("Server", "Python/Tornado/Geo-Widget")
+
+    def get(self, *args, **kwargs):
+        self.set_status(204)
+
+
+# -----------------------------------------------------------------------------
 class HelpHandler(tornado.web.RequestHandler):
+
+    def initialize(self, **kwargs):
+        self.set_header("Server", "Python/Tornado/Geo-Widget")
 
     def get(self, *args, **kwargs):
         self.write(HELP)
 
 
 # -----------------------------------------------------------------------------
-class MainHandler(tornado.web.RequestHandler):
+class PingHandler(tornado.web.RequestHandler):
+
+    def initialize(self, **kwargs):
+        self.set_header("Server", "Python/Tornado/Geo-Widget")
+
+    def get(self, *args, **kwargs):
+        resp = {"ping": "pong"}
+        self.write(resp)
+        # Include a trailing line break
+        self.write("\n")
+
+
+# -----------------------------------------------------------------------------
+class HealthCheckHandler(tornado.web.RequestHandler):
+
+    def initialize(self, **kwargs):
+        self.set_header("Server", "Python/Tornado/Geo-Widget")
+
+    def get(self, *args, **kwargs):
+        is_healthy = True
+        reason = []
+
+        # `maximum_stale_ttl` is the maximum number of seconds a database
+        # should be used for before being replaced with an updated release.
+        maximum_stale_ttl = datetime.now() - timedelta(days=15)
+
+        # https://github.com/maxmind/GeoIP2-python
+        database = self.settings["database"]
+        for db in database:
+            db_metadata = database[db].metadata()
+            db_build = datetime.fromtimestamp(db_metadata.build_epoch)
+            db_build_info = f"built on {db_build} (epoch={db_metadata.build_epoch})"
+            if db_build < maximum_stale_ttl:
+                msg = f"Database {db_metadata.description['en']} is stale! {db_build_info}"
+                is_healthy = False
+                reason.append(msg)
+                logging.warning(msg)
+
+        # Write the healthcheck response
+        resp = {"is_healthy": is_healthy}
+        if reason:
+            resp.update(reason=reason)
+        self.write(resp)
+        # Include a trailing line break
+        self.write("\n")
+
+
+# -----------------------------------------------------------------------------
+class AddressLookUpHandler(tornado.web.RequestHandler):
     """Handle looking up details about an IP address
 
     See Also:
@@ -135,20 +196,11 @@ class MainHandler(tornado.web.RequestHandler):
     def initialize(self, **kwargs):
         name = f"{Path(__file__).name} -"
         logging.debug(f"{name} initialize - **kwargs: {kwargs!r}")
-        self.set_header("Server", "Python/Tornado/Geo")
+        self.set_header("Server", "Python/Tornado/Geo-Widget")
 
     def get(self, *args, **kwargs):
         name = f"{Path(__file__).name} -"
-        logging.debug(f"{name} get - *args: {args}")
-        logging.debug(f"{name} get - **kwargs: {kwargs}")
-
-        # Handle requests for 'ping'
-        if self.request.path.endswith("/ping"):
-            resp = {"ping": "pong"}
-            self.write(resp)
-            # Include a trailing line break
-            self.write("\n")
-            return
+        logging.debug(f"{name} get - **kwargs: {kwargs!r}")
 
         # Client address to lookup
         address = kwargs.get("address")
@@ -297,9 +349,11 @@ def make_app(*args, **kwargs):
     return tornado.web.Application(
         [
             (r".*/help$", HelpHandler),
-            (r"/address/(?P<address>[\da-fA-F\.:]+)", MainHandler),
-            (r"/address", MainHandler),
-            (r"/.*", MainHandler),
+            (r".*/ping", PingHandler),
+            (r".*/healthcheck", HealthCheckHandler),
+            (r".*/address/(?P<address>[\da-fA-F\.:]+)", AddressLookUpHandler),
+            (r".*/address(/)?", AddressLookUpHandler),  # X-Forwarded-For
+            (r"/.*", DefaultHandler),
         ],
         autoreload=kwargs.get("autoreload", False),
         database=database,
