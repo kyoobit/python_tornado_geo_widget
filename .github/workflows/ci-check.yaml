@@ -17,6 +17,9 @@ jobs:
   ## A matrix stategy is used to allow for future python versions
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     strategy:
       matrix:
         python-version: ["3.12", "3.13", "3.14.0-rc.2"]
