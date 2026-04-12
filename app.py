@@ -119,7 +119,6 @@ def log_function(handler, *args, **kwargs):
 
 # -----------------------------------------------------------------------------
 class DefaultHandler(tornado.web.RequestHandler):
-
     def initialize(self, **kwargs):
         self.set_header("Server", "Python/Tornado/Geo-Widget")
 
@@ -129,7 +128,6 @@ class DefaultHandler(tornado.web.RequestHandler):
 
 # -----------------------------------------------------------------------------
 class HelpHandler(tornado.web.RequestHandler):
-
     def initialize(self, **kwargs):
         self.set_header("Server", "Python/Tornado/Geo-Widget")
 
@@ -139,7 +137,6 @@ class HelpHandler(tornado.web.RequestHandler):
 
 # -----------------------------------------------------------------------------
 class PingHandler(tornado.web.RequestHandler):
-
     def initialize(self, **kwargs):
         self.set_header("Server", "Python/Tornado/Geo-Widget")
 
@@ -152,7 +149,6 @@ class PingHandler(tornado.web.RequestHandler):
 
 # -----------------------------------------------------------------------------
 class HealthCheckHandler(tornado.web.RequestHandler):
-
     def initialize(self, **kwargs):
         self.set_header("Server", "Python/Tornado/Geo-Widget")
 
